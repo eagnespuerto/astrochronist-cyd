@@ -13,7 +13,13 @@
 #include "astro.h"
 #include "systems.h"
 #include "logo.h"
+#if __has_include("secrets.h")
 #include "secrets.h"
+#else
+// No secrets.h (e.g. a release build): no Wi-Fi, set the clock over USB with tools/cyd.py sync.
+#define NO_WIFI 1
+static const char* const WIFI_NETS[][2] = { { "", "" } };
+#endif
 
 using namespace astro;
 
@@ -331,7 +337,11 @@ static void drawNow() {
   // "here": local time / solar time
   char buf[96];
   if (!timeSet) {
+#ifdef NO_WIFI
+    txC(W / 2, H - 13, "Clock not set: run tools/cyd.py sync over USB", F_TINY, C(0xE57A5A));
+#else
     txC(W / 2, H - 13, "Setting the clock: waiting for Wi-Fi time...", F_TINY, C(0xE57A5A));
+#endif
   } else if (nowSys != GREG) {
     char lt[48]; localDayHMS(now, lt, sizeof lt);
     snprintf(buf, sizeof buf, "Your local time: %s", lt);
@@ -1102,7 +1112,11 @@ void setup() {
   setClock(buildTimeMs());   // a rough start until Wi-Fi or USB sets the real time
   { int y; if (yearOfSol((int64_t)floor(msdFromMs(nowMs())), y)) exactMY = y; }
 
+#ifdef NO_WIFI
+  snprintf(wifiNote, sizeof wifiNote, "Wi-Fi: not set up in this build");
+#else
   xTaskCreatePinnedToCore(wifiTask, "wifi", 6144, nullptr, 1, nullptr, 0);
+#endif
   Serial.printf("Astrochronist ready, heap %u, MY %d..%d\n", ESP.getFreeHeap(), MY_MIN, MY_MAX);
   if (!affOk) calibrateTouch(); else frame();
 }
