@@ -1,3 +1,4 @@
 .pio/
 src/secrets.h
 shots/
+dist/
