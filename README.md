@@ -34,6 +34,16 @@ The website's "Go to" box and the planner's text fields need a keyboard, so they
 
 The time math is a direct port of the site's `js/time/*.js` (Mars24 / Allison and McEwen 2000 for Mars, Kenneth L. Lee's Lunar Standard Time, and a low-precision barycentric correction good to about ±2 s).
 
+## Prebuilt firmware
+
+Each [release](https://github.com/eagnespuerto/astrochronist-cyd/releases) has `astrochronist-cyd-<version>-merged.bin`, a single image to flash at offset `0x0`:
+
+```bash
+esptool.py --chip esp32 write_flash 0x0 astrochronist-cyd-v1.0.0-merged.bin
+```
+
+Release builds have no Wi-Fi networks in them, so set the clock over USB with `python tools/cyd.py sync` (it keeps time while powered). Build it yourself, below, to add your networks.
+
 ## Build and flash
 
 You need [PlatformIO](https://platformio.org/) (`pip install platformio`).
