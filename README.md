@@ -15,6 +15,19 @@ It has the website's four tabs, Now, Calendar, Science and About, laid out for t
 
 ## On the board
 
+The uninverted build, with the website's cream header and dark clock page:
+
+| Gregorian | Martian | Lunar Standard Time |
+|---|---|---|
+| ![Gregorian clock: 20:19:48 UTC+08:00, 3 November 2026](docs/photos/uninverted-gregorian.jpg) | ![Coordinated Mars Time 08:20:08, sol 35 of M1, Mars Year 39](docs/photos/uninverted-martian.jpg) | ![Lunar Standard Time 00:00:21, cycle 18, lunar day 1, lunar year 60](docs/photos/uninverted-lunar.jpg) |
+
+| BJD toward Sagittarius A* | BJD toward α Centauri | Science tab |
+|---|---|---|
+| ![BJD day 348 of hectoday H3, kiloday 2,461, year 6,739, toward Sagittarius A*](docs/photos/uninverted-bjd-sgra.jpg) | ![The same BJD clock measured toward Alpha Centauri A](docs/photos/uninverted-bjd-acen.jpg) | ![Science tab: UTC, JD, MJD, JD (TT) and both BJD values](docs/photos/uninverted-science.jpg) |
+
+<details>
+<summary>The default build on the same ST7789 board (inverted colours)</summary>
+
 | Gregorian | Martian | Lunar Standard Time |
 |---|---|---|
 | ![Gregorian clock: 20:10:31, 3 November 2026](docs/photos/now-gregorian.jpg) | ![Coordinated Mars Time 08:11:09, sol 35 of M1, Mars Year 39](docs/photos/now-martian.jpg) | ![Lunar Standard Time 23:50:42, cycle 17, lunar day 1, lunar year 60](docs/photos/now-lunar.jpg) |
@@ -22,6 +35,8 @@ It has the website's four tabs, Now, Calendar, Science and About, laid out for t
 | BJD toward Sagittarius A* | BJD toward α Centauri |
 |---|---|
 | ![BJD day 348 of hectoday H3, kiloday 2,461, year 6,739, toward Sagittarius A*](docs/photos/now-bjd-sgra.jpg) | ![The same BJD clock measured toward Alpha Centauri A](docs/photos/now-bjd-acen.jpg) |
+
+</details>
 
 ## What's on each tab
 
@@ -39,8 +54,15 @@ The time math is a direct port of the site's `js/time/*.js` (Mars24 / Allison an
 Each [release](https://github.com/eagnespuerto/astrochronist-cyd/releases) has `astrochronist-cyd-<version>-merged.bin`, a single image to flash at offset `0x0`:
 
 ```bash
-esptool.py --chip esp32 write_flash 0x0 astrochronist-cyd-v1.0.0-merged.bin
+esptool.py --chip esp32 write_flash 0x0 astrochronist-cyd-v1.0.1-merged.bin
 ```
+
+There are two builds. If the header looks dark blue and the Now page light (inverted from the website's cream header and dark clock page), use the `uninverted` one instead:
+
+| File | Colours |
+|---|---|
+| `astrochronist-cyd-<version>-merged.bin` | default panel inversion |
+| `astrochronist-cyd-<version>-uninverted-merged.bin` | inversion flipped, matches the website on the tested ST7789 board |
 
 Release builds have no Wi-Fi networks in them, so set the clock over USB with `python tools/cyd.py sync` (it keeps time while powered). Build it yourself, below, to add your networks.
 
@@ -55,6 +77,8 @@ You need [PlatformIO](https://platformio.org/) (`pip install platformio`).
    pio run -t upload
    ```
 
+   For the uninverted colours, flash `pio run -e cyd-uninverted -t upload` instead.
+
 3. On first boot the screen asks you to tap four red crosses to calibrate touch. The result is saved on the board.
 
 The local time zone defaults to UTC+08:00. Set it from your PC with `python tools/cyd.py sync`, which also sets the clock over USB if you have no Wi-Fi.
@@ -67,7 +91,7 @@ Cheap Yellow Displays ship with either an ILI9341 or an ST7789 panel, and some d
 |---|---|
 | `D1` / `D2` / `D0` | Force ILI9341 / force ST7789 / auto-detect |
 | `R` | Rotate the screen 180° |
-| `I` | Invert colours |
+| `I` | Invert colours (the same switch as the uninverted build, without reflashing) |
 | `X` | Redo the touch calibration |
 
 Send them with `python tools/cyd.py cmd D2` (set `CYD_PORT` if your board isn't on `COM13`).

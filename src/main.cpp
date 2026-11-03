@@ -23,6 +23,12 @@ static const char* const WIFI_NETS[][2] = { { "", "" } };
 
 using namespace astro;
 
+// Build option: 1 flips the panel colour inversion. On the tested ST7789 board the default build
+// shows inverted colours (dark header, light Now page); the "uninverted" build shows the site's colours.
+#ifndef FLIP_COLOURS
+#define FLIP_COLOURS 0
+#endif
+
 /* ======================= hardware ======================= */
 class LGFX : public lgfx::LGFX_Device {
   lgfx::Panel_ILI9341 p_ili;
@@ -1033,7 +1039,7 @@ static void handleLine(char* l) {
     case 'N': tab = (Tab)constrain(atoi(l + 1), 0, 3); frame(); Serial.println("ok tab"); break;
     case 'C': Serial.printf("SHOT %d %d\n", W, H); Serial.flush(); capture = true; frame(); capture = false; Serial.flush(); Serial.println("\nENDSHOT"); break;
     case 'D': prefs.putUChar("panel", (uint8_t)atoi(l + 1)); Serial.println("ok panel set, restarting"); delay(100); ESP.restart(); break;
-    case 'I': prefs.putBool("invert", !prefs.getBool("invert", false)); Serial.println("ok invert toggled, restarting"); delay(100); ESP.restart(); break;
+    case 'I': prefs.putBool("invert", !prefs.getBool("invert", FLIP_COLOURS)); Serial.println("ok invert toggled, restarting"); delay(100); ESP.restart(); break;
     case 'R': prefs.putBool("rot180", !prefs.getBool("rot180", false)); Serial.println("ok rotation toggled, restarting"); delay(100); ESP.restart(); break;
     case 'X': calibrateTouch(); break;
     case 'K': sscanf(l + 1, "%d %d %d %d", &calX0, &calX1, &calY0, &calY1); prefs.putInt("cx0", calX0); prefs.putInt("cx1", calX1); prefs.putInt("cy0", calY0); prefs.putInt("cy1", calY1); Serial.println("ok touch cal"); break;
@@ -1086,7 +1092,7 @@ void setup() {
   cBg = C(0xEDF0F3); cSurface = C(0xFFFFFF); cLine = C(0xCBD3DC); cFg = C(0x16202B); cMuted = C(0x5A6878); cWarn = C(0xB4472A);
 
   // Display: the CYD ships with either an ILI9341 or an ST7789. Ask the panel which one it is.
-  bool inv = prefs.getBool("invert", false);
+  bool inv = prefs.getBool("invert", FLIP_COLOURS);   // the `I` serial command overrides the build default
   lcd = new LGFX(false, inv);
   lcd->init();
   uint32_t idD3 = lcd->getPanel()->readCommand(0xD3, 0, 4), id04 = lcd->getPanel()->readCommand(0x04, 0, 4);
